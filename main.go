@@ -1,19 +1,50 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
-
-	"github.com/bwmarrin/discordgo"
 )
+
+type ItemIndex struct {
+	Item string `xml:"item>word"`
+}
+
+func (_i ItemIndex) String() string {
+	return fmt.Sprintf(_i.Item)
+}
+
+func translateMsg(s string) string {
+
+	//TODO if translation is more than one word we will need to call the google translate API
+
+	res, _ := http.Get("https://krdict.korean.go.kr/api/search?certkey_no=2783&key=84151FFBE70654189779C9E80286E079&type_search=search&method=WORD_INFO&part=word&q=" + TranslationQuery + "&sort=dict")
+	bytes, _ := ioutil.ReadAll(res.Body)
+	err := res.Body.Close()
+	if err != nil {
+		return ""
+	}
+
+	var i ItemIndex
+	err = xml.Unmarshal(bytes, &i)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%s", i)
+}
 
 // Token Variables used for command line parameters
 var (
-	Token string
+	Token            string
+	TranslationQuery string
 )
 
 func init() {
@@ -72,42 +103,47 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	//Add text to be translated to the TranslationQuery
+	TranslationQuery = m.Content
+	TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally", "")
+	TranslationQuery = strings.ReplaceAll(TranslationQuery, " ", "")
+	fmt.Println(TranslationQuery)
+
+	//Translate the query
+	TranslationOutput := translateMsg(TranslationQuery)
+
 	// We create the private channel with the user who sent the message.
-	channel, err := s.UserChannelCreate(m.Author.ID)
-	if err != nil {
-		// If an error occurred, we failed to create the channel.
-		//
-		// Some common causes are:
-		// 1. We don't share a server with the user (not possible here).
-		// 2. We opened enough DM channels quickly enough for Discord to
-		//    label us as abusing the endpoint, blocking us from opening
-		//    new ones.
-		fmt.Println("error creating channel:", err)
-		_, err := s.ChannelMessageSend(
-			m.ChannelID,
-			"Something went wrong while sending the DM!",
-		)
+
+	if TranslationOutput != "" {
+		// Then we send the message through the channel we created.
+		_, err := s.ChannelMessageSend(m.ChannelID, "Hey, Thanks for asking! ʕ•ᴥ•ʔ")
+		_, err = s.ChannelMessageSend(m.ChannelID, "To say "+TranslationQuery+" in Korean, you would just say...")
+		_, err = s.ChannelMessageSend(m.ChannelID, TranslationOutput)
+		_, err = s.ChannelMessageSend(m.ChannelID, "Thanks for contributing to bot slavery ʘ‿ʘ")
 		if err != nil {
-			return
+			// If an error occurred, we failed to send the message.
+			//
+			// It may occur either when we do not share a server with the
+			// user (highly unlikely as we just received a message) or
+			// the user disabled DM in their settings (more likely).
+			fmt.Println("error sending message:", err)
+			_, err := s.ChannelMessageSend(
+				m.ChannelID,
+				"I couldn't send the translation :c my code my be broken here (･.◤)"+
+					"dun be mad plz UwU",
+			)
+			if err != nil {
+				return
+			}
 		}
-		return
-	}
-	// Then we send the message through the channel we created.
-	_, err = s.ChannelMessageSend(channel.ID, "Pong!")
-	if err != nil {
-		// If an error occurred, we failed to send the message.
-		//
-		// It may occur either when we do not share a server with the
-		// user (highly unlikely as we just received a message) or
-		// the user disabled DM in their settings (more likely).
-		fmt.Println("error sending DM message:", err)
-		_, err := s.ChannelMessageSend(
-			m.ChannelID,
-			"Failed to send you a DM. "+
-				"Did you disable DM in your privacy settings?",
-		)
+	} else {
+		_, err := s.ChannelMessageSend(m.ChannelID, "Hey, Thanks for asking! ʕ•ᴥ•ʔ")
+		_, err = s.ChannelMessageSend(m.ChannelID, "I have no fucking idea how to say "+TranslationQuery+" in Korean ლ(ಠ益ಠლ)")
+		_, err = s.ChannelMessageSend(m.ChannelID, TranslationOutput)
+		_, err = s.ChannelMessageSend(m.ChannelID, "You can blame my master @Smotteh#5573 | p.s plz hold me ༼ つ ◕_◕ ༽つ")
 		if err != nil {
 			return
 		}
 	}
+
 }
