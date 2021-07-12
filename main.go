@@ -25,7 +25,7 @@ func translateMsg(s string) string {
 
 	//TODO if translation is more than one word we will need to call the google translate API
 
-	res, _ := http.Get("https://krdict.korean.go.kr/api/search?certkey_no=2783&key=84151FFBE70654189779C9E80286E079&type_search=search&method=WORD_INFO&part=word&q=" + TranslationQuery + "&sort=dict")
+	res, _ := http.Get("https://krdict.korean.go.kr/api/search?certkey_no=2783&key=84151FFBE70654189779C9E80286E079&type_search=search&method=WORD_INFO&part=word&q=" + s + "&sort=dict")
 	bytes, _ := ioutil.ReadAll(res.Body)
 	err := res.Body.Close()
 	if err != nil {
@@ -93,13 +93,14 @@ func main() {
 // It is called whenever a message is created but only when it's sent through a
 // server as we did not request IntentsDirectMessages.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	// In this example, we only care about messages that start with !kel".
-	if strings.HasPrefix(m.Content, "!kal") != true {
+	// In this example, we only care about messages that start with !kal".
+	if strings.HasPrefix(m.Content, "!kally") != true {
 		return
 	}
 
@@ -122,10 +123,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		_, err = s.ChannelMessageSend(m.ChannelID, "Thanks for contributing to bot slavery ʘ‿ʘ")
 		if err != nil {
 			// If an error occurred, we failed to send the message.
-			//
-			// It may occur either when we do not share a server with the
-			// user (highly unlikely as we just received a message) or
-			// the user disabled DM in their settings (more likely).
 			fmt.Println("error sending message:", err)
 			_, err := s.ChannelMessageSend(
 				m.ChannelID,
