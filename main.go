@@ -1,44 +1,47 @@
 package main
 
 import (
-	"encoding/xml"
+	"cloud.google.com/go/translate"
+	"context"
 	"flag"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"io/ioutil"
-	"net/http"
+	"golang.org/x/text/language"
+	_ "golang.org/x/text/language"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 )
 
-type ItemIndex struct {
-	Item string `xml:"item>word"`
-}
+func translateText(targetLanguage, text string) (string, error) {
+	ctx := context.Background()
 
-func (_i ItemIndex) String() string {
-	return fmt.Sprintf(_i.Item)
-}
-
-func translateMsg(s string) string {
-
-	//TODO if translation is more than one word we will need to call the google translate API
-
-	res, _ := http.Get("https://krdict.korean.go.kr/api/search?certkey_no=2783&key=84151FFBE70654189779C9E80286E079&type_search=search&method=WORD_INFO&part=word&q=" + s + "&sort=dict")
-	bytes, _ := ioutil.ReadAll(res.Body)
-	err := res.Body.Close()
+	lang, err := language.Parse(targetLanguage)
 	if err != nil {
-		return ""
+		return "", fmt.Errorf("language.Parse: %v", err)
 	}
 
-	var i ItemIndex
-	err = xml.Unmarshal(bytes, &i)
+	client, err := translate.NewClient(ctx)
 	if err != nil {
-		return ""
+		return "", err
 	}
+	defer func(client *translate.Client) {
+		err := client.Close()
+		if err != nil {
 
-	return fmt.Sprintf("%s", i)
+		}
+	}(client)
+
+	resp, err := client.Translate(ctx, []string{text}, lang, nil)
+	if err != nil {
+		return "", fmt.Errorf("translate: %v", err)
+	}
+	if len(resp) == 0 {
+		return "", fmt.Errorf("translate returned empty response to text: %s", text)
+	}
+	fmt.Println(resp[0].Text)
+	return resp[0].Text, nil
 }
 
 // Token Variables used for command line parameters
@@ -99,7 +102,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	// In this example, we only care about messages that start with !kal".
+	// In this example, we only care about messages that start with !kally".
 	if strings.HasPrefix(m.Content, "!kally") != true {
 		return
 	}
@@ -107,11 +110,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	//Add text to be translated to the TranslationQuery
 	TranslationQuery = m.Content
 	TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally", "")
-	TranslationQuery = strings.ReplaceAll(TranslationQuery, " ", "")
+	//TranslationQuery = strings.ReplaceAll(TranslationQuery, " ", "")
 	fmt.Println(TranslationQuery)
 
 	//Translate the query
-	TranslationOutput := translateMsg(TranslationQuery)
+	TranslationOutput, _ := translateText("ko", TranslationQuery)
 
 	// We create the private channel with the user who sent the message.
 
