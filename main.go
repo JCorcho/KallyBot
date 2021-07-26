@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"golang.org/x/text/language"
-	_ "golang.org/x/text/language"
 	"os"
 	"os/signal"
 	"strings"
