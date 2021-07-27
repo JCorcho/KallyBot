@@ -4,7 +4,7 @@
 
 ## Description
 
-* KallyBot was birthed as project made to demonstrate the basics of making a Discord bot, using HTTP services and GCloud development tools. I found very litle information on programming Discord bots in GoLang thus I made a tutorial to help get people started -> [youtube video link]. After development of the bot a few language learning servers actually adopted the bot so now it has a few practical use case examples.
+ KallyBot was birthed as project made to demonstrate the basics of making a Discord bot, using HTTP services and GCloud development tools. I found very litle information on programming Discord bots in GoLang thus I made a tutorial to help get people started -> [youtube video link]. After development of the bot a few language learning servers actually adopted the bot so now it has a few practical use case examples.
 
 ## Getting Started
 
