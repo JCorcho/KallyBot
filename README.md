@@ -40,8 +40,7 @@ Contributors names and contact info
 
 ## Contributions
 * As noted above this bot is currently in use by a few language learning discord servers.
-* If you have an idea or improvement for KallyBot simply create a new issue and pull request.
-* I will merge any quality contributions.
+* If you have an idea or improvement for KallyBot simply create a new issue and pull request. I will merge any quality contributions.
 
 ## License
 
