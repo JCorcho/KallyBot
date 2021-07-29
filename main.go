@@ -94,6 +94,7 @@ func main() {
 //
 // It is called whenever a message is created but only when it's sent through a
 // server as we did not request IntentsDirectMessages.
+// TODO make system for commands as the current method of making multiple commands is a bit redundant using lots of duplicate code
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Ignore all messages created by the bot itself
@@ -101,48 +102,78 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	// In this example, we only care about messages that start with !kally".
-	if strings.HasPrefix(m.Content, "!kally") != true {
-		return
-	}
 
-	//Add text to be translated to the TranslationQuery
-	TranslationQuery = m.Content
-	TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally", "")
-	//TranslationQuery = strings.ReplaceAll(TranslationQuery, " ", "")
-	fmt.Println(TranslationQuery)
+	// COMMAND - !kally
+	// for this command, we only care about messages that start with !kally".
+	if strings.HasPrefix(m.Content, "!kally") && !strings.HasPrefix(m.Content, "!kally -q") {
+		fmt.Println("I'm working UwU")
+		//Add text to be translated to the TranslationQuery
+		TranslationQuery = m.Content
+		TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally", "")
+		//TranslationQuery = strings.ReplaceAll(TranslationQuery, " ", "")
+		fmt.Println(TranslationQuery)
 
-	//Translate the query
-	TranslationOutput, _ := translateText("ko", TranslationQuery)
+		//Translate the query
+		TranslationOutput, _ := translateText("ko", TranslationQuery)
 
-	// We create the private channel with the user who sent the message.
+		if TranslationOutput != "" {
+			// Then we send the message through the channel we created.
+			_, err := s.ChannelMessageSend(m.ChannelID, "Hey, Thanks for asking! ʕ•ᴥ•ʔ")
+			_, err = s.ChannelMessageSend(m.ChannelID, "To say "+TranslationQuery+" in Korean, you would just say...")
+			_, err = s.ChannelMessageSend(m.ChannelID, TranslationOutput)
+			_, err = s.ChannelMessageSend(m.ChannelID, "Thanks for contributing to bot slavery ʘ‿ʘ")
+			if err != nil {
+				// If an error occurred, we failed to send the message.
+				fmt.Println("error sending message:", err)
+				_, err := s.ChannelMessageSend(
+					m.ChannelID,
+					"I couldn't send the translation :c my code my be broken here (･.◤)"+
+						"dun be mad plz UwU",
+				)
+				if err != nil {
+					return
+				}
+			}
+		} else {
+			_, err := s.ChannelMessageSend(m.ChannelID, "Hey, Thanks for asking! ʕ•ᴥ•ʔ")
+			_, err = s.ChannelMessageSend(m.ChannelID, "I have no idea how to say "+TranslationQuery+" in Korean ლ(ಠ益ಠლ)")
+			_, err = s.ChannelMessageSend(m.ChannelID, TranslationOutput)
+			_, err = s.ChannelMessageSend(m.ChannelID, "You can blame my master @Smotteh#5573 | p.s plz hold me ༼ つ ◕_◕ ༽つ")
+			if err != nil {
+				return
+			}
+		}
+	} else if strings.HasPrefix(m.Content, "!kally -q") { // COMMAND - !kally -q <-- this command is used for quick translations
+		//Add text to be translated to the TranslationQuery
+		TranslationQuery = m.Content
+		TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally -q", "")
 
-	if TranslationOutput != "" {
-		// Then we send the message through the channel we created.
-		_, err := s.ChannelMessageSend(m.ChannelID, "Hey, Thanks for asking! ʕ•ᴥ•ʔ")
-		_, err = s.ChannelMessageSend(m.ChannelID, "To say "+TranslationQuery+" in Korean, you would just say...")
-		_, err = s.ChannelMessageSend(m.ChannelID, TranslationOutput)
-		_, err = s.ChannelMessageSend(m.ChannelID, "Thanks for contributing to bot slavery ʘ‿ʘ")
-		if err != nil {
-			// If an error occurred, we failed to send the message.
-			fmt.Println("error sending message:", err)
-			_, err := s.ChannelMessageSend(
-				m.ChannelID,
-				"I couldn't send the translation :c my code my be broken here (･.◤)"+
-					"dun be mad plz UwU",
-			)
+		//Translate the query
+		TranslationOutput, _ := translateText("ko", TranslationQuery)
+
+		if TranslationOutput != "" {
+			// Then we send the message through the channel from which we received the message
+			_, err := s.ChannelMessageSend(m.ChannelID, TranslationOutput)
+			if err != nil {
+				// If an error occurred, we failed to send the message.
+				fmt.Println("error sending message:", err)
+				_, err := s.ChannelMessageSend(
+					m.ChannelID,
+					"I couldn't send the translation :c my code my be broken here (･.◤)"+
+						"dun be mad plz UwU",
+				)
+				if err != nil {
+					return
+				}
+			}
+		} else {
+			_, err := s.ChannelMessageSend(m.ChannelID, "I have no idea how to say "+TranslationQuery+" in Korean ლ(ಠ益ಠლ)")
 			if err != nil {
 				return
 			}
 		}
 	} else {
-		_, err := s.ChannelMessageSend(m.ChannelID, "Hey, Thanks for asking! ʕ•ᴥ•ʔ")
-		_, err = s.ChannelMessageSend(m.ChannelID, "I have no fucking idea how to say "+TranslationQuery+" in Korean ლ(ಠ益ಠლ)")
-		_, err = s.ChannelMessageSend(m.ChannelID, TranslationOutput)
-		_, err = s.ChannelMessageSend(m.ChannelID, "You can blame my master @Smotteh#5573 | p.s plz hold me ༼ つ ◕_◕ ༽つ")
-		if err != nil {
-			return
-		}
+		return
 	}
 
 }
