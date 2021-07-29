@@ -38,6 +38,11 @@ Contributors names and contact info
 * 0.1
     * Initial Release
 
+## Contributions
+* As noted above this bot is currently in use by a few language learning discord servers.
+* If you have an idea or improvement for KallyBot simply create a new issue and pull request.
+* I will merge any quality contributions.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE.md file for details
