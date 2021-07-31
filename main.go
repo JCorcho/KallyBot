@@ -46,7 +46,6 @@ func translateText(targetLanguage, text string) (string, error) {
 // Token Variables used for command line parameters
 var (
 	Token            string
-	TranslationQuery string
 )
 
 func init() {
@@ -103,12 +102,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	//Add text to be translated to the TranslationQuery
+	TranslationQuery := m.Content
+
 	// COMMAND - !kally
 	// for this command, we only care about messages that start with !kally".
 	if strings.HasPrefix(m.Content, "!kally") && !strings.HasPrefix(m.Content, "!kally -q") {
 		fmt.Println("I'm working UwU")
-		//Add text to be translated to the TranslationQuery
-		TranslationQuery = m.Content
+
+
 		TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally", "")
 		//TranslationQuery = strings.ReplaceAll(TranslationQuery, " ", "")
 		fmt.Println(TranslationQuery)
@@ -144,8 +146,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}
 	} else if strings.HasPrefix(m.Content, "!kally -q") { // COMMAND - !kally -q <-- this command is used for quick translations
-		//Add text to be translated to the TranslationQuery
-		TranslationQuery = m.Content
 		TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally -q", "")
 
 		//Translate the query
