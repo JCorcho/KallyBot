@@ -1,11 +1,14 @@
 # KallyBot
+KallyBot is a simple good-bot made for assisting in learning Korean
 
-KallyBot is a simple good-bot helper made for assisting in learning Korean
+![](https://i.ibb.co/2YVRcjN/ryan2.png)
+![GitHub all releases](https://img.shields.io/github/downloads/JCorcho/KallyBot/total?color=%23d69b2b&logo=discord&logoColor=%23fad24e&style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues-raw/JCorcho/KallyBot?color=white&logo=windows-terminal&style=for-the-badge)
 
 ## Description
 
 KallyBot was birthed as project made to demonstrate the basics of making a Discord bot, using HTTP services and GCloud
-development tools. I found very litle information on programming Discord bots in GoLang thus I made a tutorial to help
+development tools. I found very little information on programming Discord bots in GoLang thus I made a tutorial to help
 get people started -> [youtube video link]. After development of the bot a few language learning servers adopted the bot
 so now it has a few practical use case examples.
 
@@ -22,7 +25,7 @@ to. https://discord.com/oauth2/authorize?client_id=856438324927397919&scope=bot&
 
 ### Installing
 
-* Click here https://discord.com/oauth2/authorize?client_id=856438324927397919&scope=bot&permissions=3072
+* Click [Here](https://discord.com/oauth2/authorize?client_id=856438324927397919&scope=bot&permissions=3072)
 * Follow Discord Prompts
 * Done
 
