@@ -45,7 +45,7 @@ func translateText(targetLanguage, text string) (string, error) {
 
 // Token Variables used for command line parameters
 var (
-	Token            string
+	Token string
 )
 
 func init() {
@@ -110,7 +110,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.HasPrefix(m.Content, "!kally") && !strings.HasPrefix(m.Content, "!kally -q") {
 		fmt.Println("I'm working UwU")
 
-
 		TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally", "")
 		//TranslationQuery = strings.ReplaceAll(TranslationQuery, " ", "")
 		fmt.Println(TranslationQuery)
@@ -130,19 +129,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				_, err := s.ChannelMessageSend(
 					m.ChannelID,
 					"I couldn't send the translation :c my code my be broken here (･.◤)"+
-						"dun be mad plz UwU",
+						"You can blame my master @Smotteh#5573 | p.s plz hold me ༼ つ ◕_◕ ༽つ",
 				)
 				if err != nil {
 					return
 				}
-			}
-		} else {
-			_, err := s.ChannelMessageSend(m.ChannelID, "Hey, Thanks for asking! ʕ•ᴥ•ʔ")
-			_, err = s.ChannelMessageSend(m.ChannelID, "I have no idea how to say "+TranslationQuery+" in Korean ლ(ಠ益ಠლ)")
-			_, err = s.ChannelMessageSend(m.ChannelID, TranslationOutput)
-			_, err = s.ChannelMessageSend(m.ChannelID, "You can blame my master @Smotteh#5573 | p.s plz hold me ༼ つ ◕_◕ ༽つ")
-			if err != nil {
-				return
 			}
 		}
 	} else if strings.HasPrefix(m.Content, "!kally -q") { // COMMAND - !kally -q <-- this command is used for quick translations
