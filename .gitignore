@@ -1,4 +1,5 @@
 service-key.json
+.idea
 # Binaries for programs and plugins
 *.exe
 *.exe~
