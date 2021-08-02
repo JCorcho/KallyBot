@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"golang.org/x/text/language"
+	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -25,12 +26,6 @@ func translateText(targetLanguage, text string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer func(client *translate.Client) {
-		err := client.Close()
-		if err != nil {
-
-		}
-	}(client)
 
 	resp, err := client.Translate(ctx, []string{text}, lang, nil)
 	if err != nil {
@@ -39,18 +34,21 @@ func translateText(targetLanguage, text string) (string, error) {
 	if len(resp) == 0 {
 		return "", fmt.Errorf("translate returned empty response to text: %s", text)
 	}
+	// Cleanly close down the Discord session.
+	_ = client.Close()
 	fmt.Println(resp[0].Text)
 	return resp[0].Text, nil
 }
 
 // Token Variables used for command line parameters
-var (
-	Token string
-)
+var Token string
 
 func init() {
 	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.Parse()
+	if Token == "" {
+		log.Fatalln("You need to pass a token as an argument: " + os.Args[0] + " -t TOKEN_HERE")
+	}
 }
 
 func main() {
@@ -120,21 +118,13 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if TranslationOutput != "" {
 			// Then we send the message through the channel we created.
 			_, err := s.ChannelMessageSend(m.ChannelID, "Hey, Thanks for asking! ʕ•ᴥ•ʔ")
+			handleErrorTranslationMsg(s, m, err)
 			_, err = s.ChannelMessageSend(m.ChannelID, "To say "+TranslationQuery+" in Korean, you would just say...")
+			handleErrorTranslationMsg(s, m, err)
 			_, err = s.ChannelMessageSend(m.ChannelID, TranslationOutput)
+			handleErrorTranslationMsg(s, m, err)
 			_, err = s.ChannelMessageSend(m.ChannelID, "Thanks for contributing to bot slavery ʘ‿ʘ")
-			if err != nil {
-				// If an error occurred, we failed to send the message.
-				fmt.Println("error sending message:", err)
-				_, err := s.ChannelMessageSend(
-					m.ChannelID,
-					"I couldn't send the translation :c my code my be broken here (･.◤)"+
-						"You can blame my master @Smotteh#5573 | p.s plz hold me ༼ つ ◕_◕ ༽つ",
-				)
-				if err != nil {
-					return
-				}
-			}
+			handleErrorTranslationMsg(s, m, err)
 		}
 	} else if strings.HasPrefix(m.Content, "!kally -q") { // COMMAND - !kally -q <-- this command is used for quick translations
 		TranslationQuery = strings.ReplaceAll(TranslationQuery, "!kally -q", "")
@@ -167,4 +157,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+}
+
+func handleErrorTranslationMsg(s *discordgo.Session, m *discordgo.MessageCreate, err error) {
+	if err != nil {
+		fmt.Println("error sending message:", err)
+		_, err2 := s.ChannelMessageSend(
+			m.ChannelID,
+			"I couldn't send the translation :c my code my be broken here (･.◤)"+
+				"You can blame my master @Smotteh#5573 | p.s plz hold me ༼ つ ◕_◕ ༽つ",
+		)
+		if err2 != nil {
+			fmt.Println("error sending error message:", err)
+			return
+		}
+	}
 }
