@@ -8,8 +8,8 @@ KallyBot is a simple good-bot made for assisting in learning Korean
 ## Description
 
 KallyBot was birthed as project made to demonstrate the basics of making a Discord bot, using HTTP services and GCloud
-development tools. I found very little information on programming Discord bots in GoLang thus I made a tutorial to help
-get people started -> [youtube video link]. After development of the bot a few language learning servers adopted the bot
+development tools. I found very little information on programming Discord bots in GoLang thus I am making a tutorial to help
+get people started -> [coming soon]. After development of the bot a few language learning discord servers adopted the bot
 so now it has a few practical use case examples.
 
 ## Getting Started
